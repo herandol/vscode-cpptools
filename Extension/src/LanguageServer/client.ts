@@ -452,6 +452,7 @@ const PublishDiagnosticsNotification: NotificationType<PublishDiagnosticsParams,
 const ShowMessageWindowNotification: NotificationType<ShowMessageWindowParams, void> = new NotificationType<ShowMessageWindowParams, void>('cpptools/showMessageWindow');
 const ReportTextDocumentLanguage: NotificationType<string, void> = new NotificationType<string, void>('cpptools/reportTextDocumentLanguage');
 const SemanticTokensChanged: NotificationType<string, void> = new NotificationType<string, void>('cpptools/semanticTokensChanged');
+const IntellisenseSetupNotification:  NotificationType<TimeStamps, void> = new NotificationType<TimeStamps, void>('cpptools/intellisenseSetupTime');
 
 let failureMessageShown: boolean = false;
 
@@ -2141,9 +2142,9 @@ export class DefaultClient implements Client {
         diagnosticsChannel.show(false);
     }
 
-    /* public LogIntellisenseSetup: Promise<void> | undefined {
+    public LogIntellisenseSetup(): Promise<void> | undefined {
         return ;
-    } */
+    }
 
     public async rescanFolder(): Promise<void> {
         await this.notifyWhenReady(() => this.languageClient.sendNotification(RescanFolderNotification));
@@ -2420,6 +2421,7 @@ export class DefaultClient implements Client {
         this.languageClient.onNotification(ShowMessageWindowNotification, showMessageWindow);
         this.languageClient.onNotification(ReportTextDocumentLanguage, (e) => this.setTextDocumentLanguage(e));
         this.languageClient.onNotification(SemanticTokensChanged, (e) => this.semanticTokensProvider?.invalidateFile(e));
+        this.languageClient.onNotification(IntellisenseSetupNotification, (e) => this.LogIntellisenseSetup());
         setupOutputHandlers();
     }
 
