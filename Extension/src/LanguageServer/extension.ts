@@ -164,6 +164,11 @@ export function activate(activationEventOccurred: boolean): void {
         realActivation();
     }
 
+    /* if (document.languageId === "c" || document.languageId === "cpp") {
+        telemetry.logLanguageServerEvent("firstFile", { "uri": document.uri.toString(), "time": new Date().getTime().toString() });
+        console.log(`firstFile: uri: ${document.uri.toString()} time: ${new Date().getTime().toString()}`);
+    }*/
+
     if (tempCommands.length === 0) { // Only needs to be added once.
         tempCommands.push(vscode.workspace.onDidOpenTextDocument(onDidOpenTextDocument));
     }
@@ -406,6 +411,8 @@ export async function getBuildTasks(returnCompilerPath: boolean, appendSourceToN
 function onDidOpenTextDocument(document: vscode.TextDocument): void {
     if (document.languageId === "c" || document.languageId === "cpp") {
         onActivationEvent();
+        telemetry.logLanguageServerEvent("ActivationTime", { "uri": document.uri.toString(), "time": new Date().getTime().toString() });
+        console.log(`ActivationTime: uri: ${document.uri.toString()} time: ${new Date().getTime().toString()}`);
     }
 }
 
@@ -904,7 +911,6 @@ export function registerCommands(): void {
     disposables.push(vscode.commands.registerCommand('cpptools.activeConfigName', onGetActiveConfigName));
     disposables.push(vscode.commands.registerCommand('cpptools.activeConfigCustomVariable', onGetActiveConfigCustomVariable));
     disposables.push(vscode.commands.registerCommand('cpptools.setActiveConfigName', onSetActiveConfigName));
-    disposables.push(vscode.commands.registerCommand('cpptools.LogIntellisenseSetup', onLogIntellisenseSetup));
     getTemporaryCommandRegistrarInstance().executeDelayedCommands();
 }
 
@@ -1173,10 +1179,6 @@ function onGetActiveConfigCustomVariable(variableName: string): Thenable<string>
 function onLogDiagnostics(): void {
     onActivationEvent();
     clients.ActiveClient.logDiagnostics();
-}
-
-function onLogIntellisenseSetup(): void {
-    clients.ActiveClient.LogIntellisenseSetup();
 }
 
 function onRescanWorkspace(): void {

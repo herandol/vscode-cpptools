@@ -58,6 +58,7 @@ let workspaceDisposables: vscode.Disposable[] = [];
 let workspaceReferences: refs.ReferencesManager;
 const openFileVersions: Map<string, number> = new Map<string, number>();
 const cachedEditorConfigSettings: Map<string, any> = new Map<string, any>();
+const cashedTimeStamps:  Map<string, any> = new Map<string, any>();
 
 export function disposeWorkspaceData(): void {
     workspaceDisposables.forEach((d) => d.dispose());
@@ -395,6 +396,11 @@ enum SemanticTokenModifiers {
     local = (1 << 2)
 }
 
+interface TimeStamps {
+    uri: string;
+    fileVersion: number;
+}
+
 // Requests
 const QueryCompilerDefaultsRequest: RequestType<QueryCompilerDefaultsParams, configs.CompilerDefaults, void, void> = new RequestType<QueryCompilerDefaultsParams, configs.CompilerDefaults, void, void>('cpptools/queryCompilerDefaults');
 const QueryTranslationUnitSourceRequest: RequestType<QueryTranslationUnitSourceParams, QueryTranslationUnitSourceResult, void, void> = new RequestType<QueryTranslationUnitSourceParams, QueryTranslationUnitSourceResult, void, void>('cpptools/queryTranslationUnitSource');
@@ -530,7 +536,6 @@ export interface Client {
     updateCustomBrowseConfiguration(requestingProvider?: CustomConfigurationProvider1): Thenable<void>;
     provideCustomConfiguration(docUri: vscode.Uri, requestFile?: string): Promise<void>;
     logDiagnostics(): Promise<void>;
-    LogIntellisenseSetup(): Promise<void>;
     rescanFolder(): Promise<void>;
     toggleReferenceResultsView(): void;
     setCurrentConfigName(configurationName: string): Thenable<void>;
@@ -2142,10 +2147,6 @@ export class DefaultClient implements Client {
         diagnosticsChannel.show(false);
     }
 
-    public LogIntellisenseSetup(): Promise<void> | undefined {
-        return ;
-    }
-
     public async rescanFolder(): Promise<void> {
         await this.notifyWhenReady(() => this.languageClient.sendNotification(RescanFolderNotification));
     }
@@ -2421,7 +2422,7 @@ export class DefaultClient implements Client {
         this.languageClient.onNotification(ShowMessageWindowNotification, showMessageWindow);
         this.languageClient.onNotification(ReportTextDocumentLanguage, (e) => this.setTextDocumentLanguage(e));
         this.languageClient.onNotification(SemanticTokensChanged, (e) => this.semanticTokensProvider?.invalidateFile(e));
-        this.languageClient.onNotification(IntellisenseSetupNotification, (e) => this.LogIntellisenseSetup());
+        this.languageClient.onNotification(IntellisenseSetupNotification, (e) => this.LogIntellisenseSetup(e));
         setupOutputHandlers();
     }
 
@@ -2682,6 +2683,11 @@ export class DefaultClient implements Client {
                 }
             }
         }
+    }
+
+    public LogIntellisenseSetup(setupTime: TimeStamps): void {
+        cashedTimeStamps.set(setupTime.uri, new Date().getTime());
+        return ;
     }
 
     private promptCompileCommands(params: CompileCommandsPaths): void {
@@ -3231,7 +3237,6 @@ class NullClient implements Client {
     updateCustomBrowseConfiguration(requestingProvider?: CustomConfigurationProvider1): Thenable<void> { return Promise.resolve(); }
     provideCustomConfiguration(docUri: vscode.Uri, requestFile?: string): Promise<void> { return Promise.resolve(); }
     logDiagnostics(): Promise<void> { return Promise.resolve(); }
-    LogIntellisenseSetup(): Promise<void> { return Promise.resolve(); }
     rescanFolder(): Promise<void> { return Promise.resolve(); }
     toggleReferenceResultsView(): void {}
     setCurrentConfigName(configurationName: string): Thenable<void> { return Promise.resolve(); }
