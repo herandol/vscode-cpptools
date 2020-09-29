@@ -59,7 +59,7 @@ export function createProtocolFilter(clients: ClientCollection): Middleware {
                     if (!languageChanged) {
                         finishDidOpen(document);
                     }
-                }
+                } 
             } else {
                 // NO-OP
                 // If the file is not opened into an editor (such as in response for a control-hover),
