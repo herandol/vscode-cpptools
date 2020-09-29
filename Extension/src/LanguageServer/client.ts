@@ -396,9 +396,13 @@ enum SemanticTokenModifiers {
     local = (1 << 2)
 }
 
-interface TimeStamps {
-    uri: string;
+interface TimeStampSequence {
     fileVersion: number;
+    firstFile: Date | undefined; // when the extension is activated. Defined only for "cold" start cases.
+    activationTime: Date; // when the file appears in the editor. Defined for both "cold/warm" start cases.
+    setupTime: Date; // when the Intellisense_client constructor is completed
+    updateRangeTime: Date; // when publishDiagnostics & provideSemanticTokens is completed
+    totalTime: Date;
 }
 
 // Requests

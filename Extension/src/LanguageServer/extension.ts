@@ -457,6 +457,7 @@ function realActivation(): void {
     // Request for configurations from those providers.
     clients.forEach(client => {
         getCustomConfigProviders().forEach(provider => client.onRegisterCustomConfigurationProvider(provider));
+        client.acti
     });
 
     disposables.push(vscode.workspace.onDidChangeConfiguration(onDidChangeSettings));
