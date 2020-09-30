@@ -41,6 +41,7 @@ export function createProtocolFilter(clients: ClientCollection): Middleware {
                                 onDidChangeActiveTextEditor(editor);
                             }
                         });
+                        // warm start 
                     };
                     let languageChanged: boolean = false;
                     if ((document.uri.path.endsWith(".C") || document.uri.path.endsWith(".H")) && document.languageId === "c") {
