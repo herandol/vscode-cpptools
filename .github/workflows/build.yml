@@ -41,5 +41,5 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: Extension/cpptools.vsix
-          asset_name: my-artifact.zip
+          asset_name: cpptools.vsix
           asset_content_type: application/zip
