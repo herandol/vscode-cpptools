@@ -20,6 +20,7 @@ jobs:
           npm install
           sudo npm install -g vsce
           vsce package
+          mv *.vsix cpptools.vsix
 
       - name: Create Release
         id: create_release
@@ -39,6 +40,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./Extension/*.vsix
+          asset_path: Extension/cpptools.vsix
           asset_name: my-artifact.zip
           asset_content_type: application/zip
